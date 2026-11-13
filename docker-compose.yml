@@ -1,0 +1,57 @@
+# Local stack: PostgreSQL + the service.
+#
+#   docker compose up --build
+#   curl localhost:8556/health/ready
+#
+# Two roles on purpose (docker/db-init.sql): `postgres` owns the schema and runs the
+# migrations; `artifact_service` serves with no CREATE privilege, which is what the RLS
+# migration asserts. Uploads additionally need a storage service
+# (github.com/nonagenticai/storage_service) — point STORAGE_SERVICE_URL at it when you want
+# them to work; metadata, manifest and health routes work without one.
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: artifact_registry
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./docker/db-init.sql:/docker-entrypoint-initdb.d/01-roles.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d artifact_registry"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  service:
+    build:
+      context: .
+      target: production
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: development
+      ENABLE_DOCS: "true"
+      ENABLE_AUTH: "true"
+      ENABLE_VIRUS_SCANNING: "false"
+      JWT_SECRET_KEY: dev-only-secret-key-at-least-32-chars-long
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: artifact_registry
+      POSTGRES_USER: artifact_service
+      POSTGRES_PASSWORD: changeme
+      # STORAGE_SERVICE_URL: http://storage:8391
+    # Migrate as the schema owner, grant the runtime role its DML (the RLS revision
+    # revokes it on purpose -- see docker/grant-dml.py), then serve as the restricted role.
+    command:
+      - sh
+      - -c
+      - >-
+        POSTGRES_USER=postgres POSTGRES_PASSWORD=postgres python -m alembic upgrade head &&
+        python docker/grant-dml.py &&
+        python -m uvicorn main:app --host 0.0.0.0 --port 8556
+    ports:
+      - "8556:8556"

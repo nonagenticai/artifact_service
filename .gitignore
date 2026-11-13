@@ -1,0 +1,107 @@
+# ==============================================================================
+# Artifact Service - Git Ignore
+# ==============================================================================
+._*
+._.DS_Store
+**/._.DS_Store
+.AppleDouble
+.LSOverride
+# Environment variables (CRITICAL - contains secrets)
+.env
+.env.*
+!.env.example
+.env.backup*
+.env.bak*
+.env.save
+.env.old
+.env.*.local
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+credentials.json
+secrets.*
+*_secrets.*
+
+# Python - Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.poetry/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Logs
+logs/
+*.log
+
+# Data
+data/
+*.db
+*.sqlite
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Certificates
+certs/
+
+# Alembic
+alembic/versions/*.pyc
+
+# Docker
+.dockerignore
+._.env.backup.20251129_081303
+.local-ci-commit.txt
+.local-ci-push.txt
+coverage_html/
+01_recent_push_failure.txt
+02_deploy_issues.txt
+
+# Local uv binary (was committed by mistake in ae080e9; use the system uv)
+/uv

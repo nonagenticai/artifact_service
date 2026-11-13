@@ -1,0 +1,62 @@
+{
+  "policies": {
+    "artifact_reviews.tenant_isolation": {
+      "cmd": "ALL",
+      "permissive": "PERMISSIVE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM artifacts a\n  WHERE ((a.id = artifact_reviews.artifact_id) AND (a.tenant_id = (NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid))))",
+      "roles": "{public}",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM artifacts a\n  WHERE ((a.id = artifact_reviews.artifact_id) AND (a.tenant_id = (NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid))))"
+    },
+    "artifact_tags.system_published_read": {
+      "cmd": "SELECT",
+      "permissive": "PERMISSIVE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM artifacts a\n  WHERE ((a.id = artifact_tags.artifact_id) AND (a.tenant_id = '0195f48b-d000-7000-8000-000000000001'::uuid) AND ((a.visibility)::text = 'tenant'::text) AND (a.publish_status = 'published'::text) AND ((NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid = ANY (ARRAY['0195f48b-d000-7000-8000-000000000001'::uuid, '0195f48b-d000-7000-8000-000000000002'::uuid, '0195f48b-d000-7000-8000-000000000003'::uuid, '0195f48b-d000-7000-8000-000000000004'::uuid, '0195f48b-d000-7000-8000-000000000005'::uuid, '019de842-c92a-7e37-8fdd-eb0d8c5396f9'::uuid])))))",
+      "roles": "{public}",
+      "with_check": null
+    },
+    "artifact_tags.tenant_isolation": {
+      "cmd": "ALL",
+      "permissive": "PERMISSIVE",
+      "qual": "(EXISTS ( SELECT 1\n   FROM artifacts a\n  WHERE ((a.id = artifact_tags.artifact_id) AND (a.tenant_id = (NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid))))",
+      "roles": "{public}",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM artifacts a\n  WHERE ((a.id = artifact_tags.artifact_id) AND (a.tenant_id = (NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid))))"
+    },
+    "artifacts.system_published_read": {
+      "cmd": "SELECT",
+      "permissive": "PERMISSIVE",
+      "qual": "((tenant_id = '0195f48b-d000-7000-8000-000000000001'::uuid) AND ((visibility)::text = 'tenant'::text) AND (publish_status = 'published'::text) AND ((NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid = ANY (ARRAY['0195f48b-d000-7000-8000-000000000001'::uuid, '0195f48b-d000-7000-8000-000000000002'::uuid, '0195f48b-d000-7000-8000-000000000003'::uuid, '0195f48b-d000-7000-8000-000000000004'::uuid, '0195f48b-d000-7000-8000-000000000005'::uuid, '019de842-c92a-7e37-8fdd-eb0d8c5396f9'::uuid])))",
+      "roles": "{public}",
+      "with_check": null
+    },
+    "artifacts.tenant_isolation": {
+      "cmd": "ALL",
+      "permissive": "PERMISSIVE",
+      "qual": "(tenant_id = (NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid)",
+      "roles": "{public}",
+      "with_check": "(tenant_id = (NULLIF(current_setting('app.current_tenant'::text, true), ''::text))::uuid)"
+    }
+  },
+  "rls": {
+    "artifact_reviews": {
+      "enabled": true,
+      "forced": false
+    },
+    "artifact_tags": {
+      "enabled": true,
+      "forced": false
+    },
+    "artifacts": {
+      "enabled": true,
+      "forced": false
+    },
+    "tenant_id_remap_audit": {
+      "enabled": false,
+      "forced": false
+    }
+  },
+  "runtime_grants": {
+    "artifact_reviews": "DELETE,INSERT,SELECT,UPDATE",
+    "artifact_tags": "DELETE,INSERT,SELECT,UPDATE",
+    "artifacts": "DELETE,INSERT,SELECT,UPDATE"
+  }
+}

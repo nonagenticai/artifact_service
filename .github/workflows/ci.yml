@@ -1,0 +1,103 @@
+# CI for artifact-service, a PUBLIC repository.
+#
+# Why this file is self-contained: a public repository may only call reusable workflows that are
+# themselves public. The shared service archetype this repository was built against lives in a
+# PRIVATE repository, so calling it from here fails at 0s with "workflow was not found" (HTTP 422)
+# and no job is created.
+#
+# ⛔ Runner choice is load-bearing. GitHub-hosted standard runners are the correct blast radius for
+# a public repo: a pull request from any fork can edit `runs-on`, so a self-hosted runner opened to
+# this repository is arbitrary untrusted code inside the private network.
+#
+# Scope, stated honestly: this gate lints, format-checks and tests the service against a throwaway
+# PostgreSQL 18 container, and builds the image. It does NOT deploy and does NOT push to a
+# registry — a public repo must never hold a credential that can publish into a private registry,
+# where any fork PR could reach it.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Credentials. A full-tree scan is the honest one for a repo whose whole point is being public.
+  gitleaks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: install gitleaks 8.30.1 (pinned, sha256-verified)
+        run: |
+          set -euo pipefail
+          version=8.30.1
+          sha=551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          curl -fsSL -o "$RUNNER_TEMP/gitleaks.tgz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${version}/gitleaks_${version}_linux_x64.tar.gz"
+          echo "${sha}  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C "$RUNNER_TEMP" gitleaks
+      - name: scan the tree
+        run: |
+          "$RUNNER_TEMP/gitleaks" dir --redact --exit-code 1 --no-banner .
+
+  # The other half of the public-repo rule: internal hostnames, tailnet addresses, home paths and
+  # private repository names. Run it locally before pushing: `bash scripts/ci/no-private-refs.sh`.
+  private-refs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: scan tracked files
+        run: bash scripts/ci/no-private-refs.sh
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: artifact_test
+          POSTGRES_USER: artifact
+          POSTGRES_PASSWORD: artifact
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U artifact -d artifact_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.10.12"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: install
+        run: uv sync --frozen
+      - name: lint
+        run: uv run ruff check src/ tests/
+      - name: format
+        run: uv run ruff format --check src/ tests/
+      - name: test
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg://artifact:artifact@localhost:5432/artifact_test
+        run: uv run pytest tests/ -q
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: build the image against public base images
+        run: docker build --target production --build-arg BASE_REGISTRY=docker.io -t artifact-service:ci .

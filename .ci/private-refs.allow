@@ -1,0 +1,19 @@
+# Allowlist for scripts/ci/no-private-refs.sh — a security decision, not a convenience.
+#
+# One rule per line, `path/glob:pattern  # justification`. The glob matches the repo-relative
+# path; the pattern is an ERE matched against the whole `git grep` hit (`path:line:text`).
+# Blank lines and `#` comments are ignored. A justification is mandatory in review.
+#
+# ⛔ Do NOT add an entry to keep a real internal hostname, address or private repository path in
+# a public tree. Remove it. An entry is only for a string that *looks* private but is not (e.g. a
+# documented loopback example, or a term that collides with a pattern).
+#
+# Two entries, both collisions with the guard's own EREs rather than infra references:
+
+# `ts\.net` is meant to catch the Tailscale domain; it also matches the substring inside
+# `parts.netloc`, which is ordinary urlparse code.
+tests/integration/target_guard.py:parts\.netloc  # 'ts.net' substring of urlparse's .netloc
+
+# `[A-Za-z0-9]\.local` is meant to catch a machine hostname; this case is the reserved mDNS TLD
+# that the guard under test must classify as LOCAL.
+tests/unit/test_prod_target_guard.py:something\.local  # reserved .local TLD under test
