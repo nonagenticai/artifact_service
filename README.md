@@ -1,5 +1,9 @@
 # Artifact Service
 
+[![CI](https://github.com/nonagenticai/artifact_service/actions/workflows/ci.yml/badge.svg)](https://github.com/nonagenticai/artifact_service/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/nonagenticai/artifact_service)](https://github.com/nonagenticai/artifact_service/releases)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 Multi-tenant storage and retrieval of project artifacts, proxied through a
 [storage service](https://github.com/nonagenticai/storage_service) (which owns the MinIO
 credentials) with optional ClamAV virus scanning.
@@ -435,3 +439,19 @@ PYTHONPATH=src uv run alembic history
 # Downgrade if needed
 PYTHONPATH=src uv run alembic downgrade -1
 ```
+
+## Security
+
+Report vulnerabilities privately through the repository's Security tab — see
+[`SECURITY.md`](SECURITY.md). Do not open a public issue for a security problem.
+
+## Contributing
+
+Issues and pull requests are welcome. See
+[`CONTRIBUTING.md`](https://github.com/nonagenticai/.github/blob/main/CONTRIBUTING.md) for the
+organisation-wide rules; setup, test and lint commands are in this README. Commits carry DCO
+sign-off.
+
+## License
+
+Apache-2.0 — see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
