@@ -33,7 +33,7 @@ The service supports seven artifact kinds (doc, presentation, image, dataset, js
 - **Multi-tenant isolation** -- every database query filters by tenant_id so tenants can never see or access each other's artifacts
 - **Streaming downloads** -- files are streamed in 64 KB chunks directly from storage so large files don't require full buffering in memory
 - **Path traversal protection** -- double-decodes filenames and rejects traversal patterns, null bytes, and encoded slashes so storage keys can't be manipulated
-- **MIME type whitelist** -- only allows explicitly configured content types (14 by default) so unexpected file formats are blocked before upload
+- **MIME type whitelist** -- only allows explicitly configured content types (17 by default) so unexpected file formats are blocked before upload
 - **Manifest generation** -- groups artifacts by scope (project, card, or step) in a single query so consumers can inventory all files for a given context without pagination
 - **Sensitivity classification** -- tags artifacts as public, internal, or secret so downstream systems can enforce access control based on classification
 - **Tag-based filtering** -- supports up to 20 tags per artifact with OR-logic queries so artifacts can be discovered by category without knowing exact IDs
@@ -366,7 +366,7 @@ declared any.
 
 ```bash
 uv run pytest tests/ -v --cov=src          # All tests with coverage
-uv run pytest tests/unit/ -v               # Unit tests (11 files)
+uv run pytest tests/unit/ -v               # Unit tests (24 files)
 uv run pytest tests/integration/ -v        # Integration tests (health, manifests, upload)
 uv run ruff check src/ tests/              # Lint
 uv run ruff format --check src/ tests/     # Format check
@@ -442,8 +442,10 @@ PYTHONPATH=src uv run alembic downgrade -1
 
 ## Security
 
-Report vulnerabilities privately through the repository's Security tab — see
-[`SECURITY.md`](SECURITY.md). Do not open a public issue for a security problem.
+Report vulnerabilities privately through this repository's Security tab ("Report a
+vulnerability"). Do not open a public issue for a security problem. This repository does not
+ship a `SECURITY.md`; private reporting is handled by GitHub's repository security advisory
+flow.
 
 ## Contributing
 
@@ -468,4 +470,4 @@ enforcement point). Neither is required to run this code.
 
 ## License
 
-Apache-2.0 — see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
+Apache-2.0 — see [`LICENSE`](LICENSE).
