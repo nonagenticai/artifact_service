@@ -107,13 +107,13 @@ ignore = ["E501"]
 python-version = "3.14"
 
 [tool.ty.rules]
-unresolved-import = "error"
+import-not-found = "error"
 
 [[tool.ty.overrides]]
 include = ["tests/contract/"]
 
 [tool.ty.overrides.rules]
-unresolved-import = "ignore"
+import-not-found = "ignore"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
