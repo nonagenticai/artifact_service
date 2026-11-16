@@ -39,7 +39,7 @@ dependencies = [
     # Document render (DOC-1): markdown -> sanitised HTML -> PDF. Exact pins on
     # purpose: the renderer's output is cached by RENDER_VERSION, so a silent
     # minor bump of any of these would change bytes behind a cache key.
-    "markdown-it-py==4.2.0",
+    "markdown-it-py==4.3.0",
     "nh3==0.3.7",
     "weasyprint==70.0",
 ]
