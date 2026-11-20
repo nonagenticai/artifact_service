@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy UV from official image (multi-arch compatible)
-COPY --from=ghcr.io/astral-sh/uv:0.10.10 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.13.9 /uv /usr/local/bin/uv
 
 ENV PATH="/usr/local/bin:$PATH"
 
