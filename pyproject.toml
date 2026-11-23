@@ -40,7 +40,7 @@ dependencies = [
     # purpose: the renderer's output is cached by RENDER_VERSION, so a silent
     # minor bump of any of these would change bytes behind a cache key.
     "markdown-it-py==4.3.0",
-    "nh3==0.3.7",
+    "nh3==0.3.8",
     "weasyprint==70.0",
 ]
 
